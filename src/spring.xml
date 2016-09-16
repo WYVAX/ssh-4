@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+     http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/tx
+     http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     http://www.springframework.org/schema/aop
+     http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+     http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+
+    <!-- 启用AOP功能 -->
+<!--    <aop:aspectj-autoproxy></aop:aspectj-autoproxy>-->
+
+    <bean id="user" class="com.tt.model.User">
+        <property name="name" value="root"></property>
+        <property name="password" value="root"></property>
+    </bean>
+
+    <!-- action，service和dao层配置，这里使用了默认装配功能 -->
+    <bean id="userAction" class="com.tt.control.UserAction">
+        <property name="user" ref="user"></property>
+        <property name="userService" ref="userService"></property>
+    </bean>
+
+    <bean id="userService" class="com.tt.service.UserService" >
+        <property name="userDao" ref="userDao"></property>
+    </bean>
+
+    <bean id="userDao" class="com.tt.dao.UserDao">
+        <property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>
+
+
+    <!-- 加载外部的properties配置文件 -->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <!-- 配置数据库连接池（c3p0） -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <!-- 基本信息 -->
+        <property name="jdbcUrl" value="${jdbcUrl}"></property>
+        <property name="driverClass" value="${driverClass}"></property>
+        <property name="user" value="${username}"></property>
+        <property name="password" value="${password}"></property>
+    </bean>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+	    <property name="dataSource" ref="dataSource"/>
+	    <property name="hibernateProperties">
+	      <props>
+	      	<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+	      	<prop key="hibernate.show_sql">true</prop>
+	      	<prop key="hibernate.hbm2ddl.auto">update</prop>
+	      	<prop key="hibernate.format_sql">false</prop>
+	      </props>
+	    </property>
+        <!-- 映射文件的包路径 -->
+        <property name="mappingDirectoryLocations">
+            <list>
+                <value>classpath:com/tt/model</value>
+            </list>
+        </property>
+	 </bean>
+
+    <!-- 配置功能扩展对象 - 事务管理 -->
+<!--    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>-->
+
+    <!-- 声明事务管理AOP功能 -->
+<!--    <aop:config>
+        <aop:advisor advice-ref="transactionAdvice" pointcut="execution(* com.tt..service.*.*(..))"/>
+    </aop:config>
+
+    <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="save*" propagation="REQUIRED" isolation="DEFAULT" rollback-for="java.lang.Exception"/>
+            <tx:method name="delete*" propagation="REQUIRED" isolation="DEFAULT" rollback-for="java.lang.Exception"/>
+            <tx:method name="update*" propagation="REQUIRED" isolation="DEFAULT" rollback-for="java.lang.Exception"/>
+            <tx:method name="select*" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>-->
+</beans>

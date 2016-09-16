@@ -1,0 +1,11 @@
+*.class
+ssh.iml
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+#directory
+/.idea/
+/out/
